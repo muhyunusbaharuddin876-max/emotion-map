@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Analytics - Emotion Smart City</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="Style.css">
+    <style>
+        /* Perbaikan jika layout halaman analitik membutuhkan penyesuaian khusus grid */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-top: 24px;
+        }
+        @media (max-width: 1024px) {
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .insight-card {
+            background: #111e4663;
+            border: 1px solid #1e293b;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .insight-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .insight-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .icon-purple { background: rgba(147, 51, 234, 0.15); color: #a855f7; }
+        .icon-blue { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+        .icon-green { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+        
+        .prediction-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .prediction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.03);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="logo-section">
+                <i class="fa-solid fa-brain logo-icon"></i>
+                <div class="logo-text">
+                    <h2>Emotion</h2>
+                    <span>Smart City</span>
+                </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-item"><i class="fa-solid fa-chart-simple"></i> Dashboard</a>
+                <a href="EmotionalMap.html" class="nav-item"><i class="fa-solid fa-map-location-dot"></i> Emotional Map</a>
+                <a href="ai-analytics.html" class="nav-item active"><i class="fa-solid fa-microchip"></i> AI Analytics</a>
+                <a href="SocialSentiment.html" class="nav-item"><i class="fa-solid fa-users"></i> Social Sentiment</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="main-header">
+                <div class="header-title">
+                    <h1>AI Analytics & Forecasting</h1>
+                    <p>Prediksi dan ringkasan kondisi emosional kota berbasis algoritma kecerdasan buatan</p>
+                </div>
+            </header>
+
+            <div class="analytics-grid">
+                
+                <div class="analytics-left">
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <div class="insight-icon icon-purple"><i class="fa-solid fa-brain"></i></div>
+                            <div>
+                                <h3 style="margin:0; font-size:18px;">Ringkasan Emosi Wilayah (Yogyakarta & Sleman)</h3>
+                                <small style="color: #64748b;">Diperbarui secara real-time</small>
+                            </div>
+                        </div>
+                        <p style="line-height: 1.6; color: #cbd5e1;">
+                            Berdasarkan ekstraksi data spasial mutakhir, wilayah <strong>Kawasan Malioboro</strong> memperlihatkan fluktuasi tingkat stres minor menjelang akhir pekan akibat kepadatan arus lalu lintas. Sebaliknya, wilayah <strong>Sleman (Area Kaliurang)</strong> menunjukkan kestabilan indeks positif yang sangat solid didukung oleh faktor kenyamanan lingkungan.
+                        </p>
+                    </div>
+
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <div class="insight-icon icon-blue"><i class="fa-solid fa-chart-line"></i></div>
+                            <div>
+                                <h3 style="margin:0; font-size:18px;">Analisis Sentimen Prediktif</h3>
+                                <small style="color: #64748b;">Estimasi model 24 jam ke depan</small>
+                            </div>
+                        </div>
+                        <p style="line-height: 1.6; color: #cbd5e1;">
+                            Algoritma peramalan memproyeksikan lonjakan sentimen positif sebesar <strong>+4.2%</strong> pada esok hari, bertepatan dengan agenda car-free day dan event kebudayaan lokal. Tim tata kota disarankan mengantisipasi penumpukan volume sampah di sekitar Titik Nol agar sentimen negatif tidak ikut terpicu naik.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="analytics-right">
+                    <div class="panel">
+                        <h3 style="margin-top:0; margin-bottom:20px;"><i class="fa-solid fa-bullseye"></i> Akurasi Model AI</h3>
+                        <div class="sentiment-item">
+                            <div class="sentiment-labels">
+                                <span>NLP Sentiment Classifier</span><span>94.2%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress fill-positive" style="width: 94.2%; background: #a855f7;"></div>
+                            </div>
+                        </div>
+                        <br>
+                        <h3 style="margin-top:20px; margin-bottom:16px;"><i class="fa-solid fa-clock-history"></i> Prediksi Stress Area</h3>
+                        <div class="prediction-list">
+                            <div class="prediction-item">
+                                <span>Malioboro</span>
+                                <span style="color:#ef4444; font-weight:600;">Tinggi (Sore)</span>
+                            </div>
+                            <div class="prediction-item">
+                                <span>Alun-Alun Kidul</span>
+                                <span style="color:#f59e0b; font-weight:600;">Sedang</span>
+                            </div>
+                            <div class="prediction-item">
+                                <span>Kaliurang</span>
+                                <span style="color:#22c55e; font-weight:600;">Rendah / Stabil</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>

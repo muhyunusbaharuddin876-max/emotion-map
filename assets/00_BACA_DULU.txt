@@ -1,0 +1,98 @@
+
+OUTPUT FINAL WEBGIS GEOJSON LENGKAP
+PETA TINGKAT KENYAMANAN LINGKUNGAN
+BERBASIS EMOTION SMART CITY KOTA YOGYAKARTA
+
+============================================================
+FILE FINAL UTAMA
+============================================================
+
+01_PETA_FINAL_KELAS_KENYAMANAN.tif
+Raster final kelas kenyamanan.
+
+09_PETA_FINAL_KELAS_KENYAMANAN.geojson
+GeoJSON final kelas kenyamanan untuk WebGIS dan pop-up.
+
+02_PETA_WEIGHTED_OVERLAY_NILAI.tif
+Raster nilai asli hasil Weighted Overlay.
+
+10_PETA_WEIGHTED_OVERLAY_NILAI.geojson
+GeoJSON nilai Weighted Overlay.
+Nilai dibulatkan 2 angka desimal agar file tidak terlalu berat.
+
+============================================================
+LAYER PARAMETER, SEMUA ADA GeoTIFF DAN GeoJSON
+============================================================
+
+03_PARAMETER_RTH_SKOR.tif
+11_PARAMETER_RTH_SKOR.geojson
+
+04_PARAMETER_NDVI_SKOR.tif
+12_PARAMETER_NDVI_SKOR.geojson
+
+05_PARAMETER_LST_SKOR.tif
+13_PARAMETER_LST_SKOR.geojson
+
+06_PARAMETER_KUALITAS_UDARA_SKOR.tif
+14_PARAMETER_KUALITAS_UDARA_SKOR.geojson
+
+07_PARAMETER_KEMACETAN_SKOR.tif
+15_PARAMETER_KEMACETAN_SKOR.geojson
+
+08_PARAMETER_KEPADATAN_SKOR.tif
+16_PARAMETER_KEPADATAN_SKOR.geojson
+
+============================================================
+PREVIEW
+============================================================
+
+17_PREVIEW_PETA_FINAL.png
+18_PREVIEW_NILAI_WEIGHTED_OVERLAY.png
+
+============================================================
+STYLE DAN METADATA
+============================================================
+
+19_STYLE_LEGENDA_WEBGIS.json
+20_LEGENDA_KELAS.csv
+21_METADATA_BOBOT.csv
+
+============================================================
+KELAS
+============================================================
+
+1 = Sangat Tidak Nyaman
+2 = Tidak Nyaman
+3 = Sedang
+4 = Nyaman
+5 = Sangat Nyaman
+
+============================================================
+BOBOT
+============================================================
+
+RTH = 20%
+NDVI = 20%
+LST = 20%
+Kualitas Udara = 20%
+Kemacetan = 10%
+Kepadatan = 10%
+
+RUMUS:
+Weighted Overlay = RTH*0.20 + NDVI*0.20 + LST*0.20 + KualitasUdara*0.20 + Kemacetan*0.10 + Kepadatan*0.10
+
+============================================================
+CATATAN UNTUK WEBGIS
+============================================================
+
+Semua file GeoTIFF dan GeoJSON sudah dibuat dalam CRS EPSG:4326.
+
+Rekomendasi layer utama:
+- 09_PETA_FINAL_KELAS_KENYAMANAN.geojson jika WebGIS lebih nyaman pakai GeoJSON.
+- 01_PETA_FINAL_KELAS_KENYAMANAN.tif jika WebGIS lebih nyaman pakai raster.
+
+Weighted Overlay juga tersedia dalam dua bentuk:
+- 02_PETA_WEIGHTED_OVERLAY_NILAI.tif
+- 10_PETA_WEIGHTED_OVERLAY_NILAI.geojson
+
+GeoJSON parameter bisa dipakai sebagai layer tambahan on/off di WebGIS.

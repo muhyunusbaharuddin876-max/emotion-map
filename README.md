@@ -1,2 +1,2 @@
-# emotion-map
-map yang merekam emosi masyakarat
+# emotionmap
+PROJECT AKHIR SIGTER

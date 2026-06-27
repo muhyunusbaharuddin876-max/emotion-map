@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotional Map - Emotion Smart City</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="Style.css">
+    
+    <style>
+        .map-wrapper {
+            position: relative;
+        }
+        
+        /* Styling Legenda Leaflet Custom */
+        .info.legend {
+            background: rgba(30, 30, 47, 0.9);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 15px;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            color: #ffffff;
+            line-height: 18px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            max-width: 220px;
+        }
+        
+        .info.legend h4 {
+            margin: 0 0 8px 0;
+            color: #ffd60a;
+            font-size: 13px;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding-bottom: 4px;
+        }
+
+        .info.legend i {
+            width: 16px;
+            height: 16px;
+            float: left;
+            margin-right: 8px;
+            opacity: 0.8;
+            border-radius: 3px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .legend-section {
+            margin-bottom: 10px;
+        }
+        .legend-section:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Merapikan posisi kontrol layer bawaan Leaflet biar masuk tema dark */
+        .leaflet-control-layers {
+            background: rgba(30, 30, 47, 0.9) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 8px !important;
+            font-family: 'Inter', sans-serif !important;
+        }
+        .leaflet-control-layers-toggle {
+            filter: invert(1); /* Biar ikon kontrolnya putih */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="logo-section">
+                <i class="fa-solid fa-brain logo-icon"></i>
+                <div class="logo-text">
+                    <h2>Emotion</h2>
+                    <span>Smart City</span>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-item"><i class="fa-solid fa-chart-simple"></i> Dashboard</a>
+                <a href="EmotionalMap.html" class="nav-item active"><i class="fa-solid fa-map-location-dot"></i> Emotional Map</a>
+                <a href="ai-analytics.html" class="nav-item"><i class="fa-solid fa-microchip"></i> AI Analytics</a>
+                <a href="SocialSentiment.html" class="nav-item"><i class="fa-solid fa-users"></i> Social Sentiment</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="main-header">
+                <div class="header-title">
+                    <h1>Emotional GIS Map</h1>
+                    <p>Pemetaan spasial kondisi emosi masyarakat Yogyakarta & Sleman secara penuh</p>
+                </div>
+            </header>
+
+            <div class="content-grid" style="grid-template-columns: 1fr;">
+                <div class="left-column">
+                    <section class="map-wrapper" style="height: calc(100vh - 180px);">
+                        <div id="map" style="height: 100%;"></div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script src="Script.js"></script>
+
+    <script>
+        // 1. Inisialisasi Peta Dasar (Basemap)
+        if (typeof map === 'undefined') {
+            // Set default view ke Yogyakarta & Sleman
+            var map = L.map('map').setView([-7.75, 110.38], 11);
+            
+            var darkMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+                attribution: '&copy; CartoDB'
+            }).addTo(map);
+
+            var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            });
+        }
+
+        // --- SISTEM WARNA AMAN (FALLBACK SIMBOLOGI) ---
+        // Fungsi ini akan mencari properti nilai/skor. Jika tidak ketemu, peta tidak akan hilang/kosong melainkan memakai warna default.
+        function getFeatureScore(feature) {
+            if (!feature || !feature.properties) return null;
+            const props = feature.properties;
+            // PERBAIKAN: Menambahkan props.nilai_skor di baris paling depan agar sesuai dengan isi file GeoJSON Anda
+            return props.nilai_skor || props.skor || props.SKOR || props.Skor || props.nilai || props.NILAI || props.Nilai || props.kelas || props.Kelas || props.KELAS || null;
+        }
+
+        function getColor(feature, type) {
+            let val = getFeatureScore(feature);
+            
+            // Jika data atribut/skor tidak ditemukan di file GeoJSON, pakai warna solid bawaan type agar layer tetap muncul!
+            if (val === null) {
+                if (type === 'kenyamanan') return '#00b050';
+                if (type === 'overlay') return '#ff453a';
+                if (type === 'green') return '#2ecc71';
+                if (type === 'hot') return '#ff5733';
+                if (type === 'purple') return '#8e24aa';
+                return '#3498db';
+            }
+
+            // Jika nilai berupa teks (misal: "Tinggi", "Sedang", "Rendah")
+            if (typeof val === 'string') {
+                val = val.toLowerCase();
+                if (val.includes('tinggi') || val.includes('baik') || val.includes('nyaman')) {
+                    return type === 'hot' || type === 'overlay' || type === 'purple' ? '#900c3f' : '#00b050';
+                }
+                if (val.includes('sedang') || val.includes('menengah') || val.includes('amang')) {
+                    return '#ffc000';
+                }
+                return type === 'hot' || type === 'overlay' || type === 'purple' ? '#ffc300' : '#ff453a';
+            }
+
+            // Jika nilai berupa Angka/Numerik (Skor 1-5 atau sejenisnya)
+            if (type === 'kenyamanan') {
+                return val >= 4 ? '#00b050' : val >= 2.5 ? '#92d050' : '#ffc000';
+            }
+            if (type === 'overlay') {
+                return val >= 4 ? '#ff0000' : val >= 2.5 ? '#ffc000' : '#00b050';
+            }
+            if (type === 'green') {
+                return val >= 4 ? '#1b4d3e' : val >= 2.5 ? '#2ecc71' : '#a3e4d7';
+            }
+            if (type === 'hot') {
+                return val >= 4 ? '#900c3f' : val >= 2.5 ? '#ff5733' : '#ffc300';
+            }
+            if (type === 'purple') {
+                return val >= 4 ? '#4a148c' : val >= 2.5 ? '#8e24aa' : '#e1bee7';
+            }
+            return '#3498db';
+        }
+
+        // Helper fungsi pembuat standar popup tabel atribut agar infonya detil
+        function bindStandardPopup(feature, layer, title) {
+            if (feature.properties) {
+                let info = `<div style="color:#fff; font-family:'Inter',sans-serif;"><b>${title}</b><hr style='border:0.5px solid rgba(255,255,255,0.2); margin: 5px 0;'>`;
+                for (let key in feature.properties) {
+                    info += `<b>${key}:</b> ${feature.properties[key]}<br>`;
+                }
+                info += `</div>`;
+                layer.bindPopup(info);
+            }
+        }
+
+        // --- DEFINISI INDUK LAYER GROUP ---
+        var layerKenyamanan = L.geoJSON(null, {
+            style: f => ({ color: '#ffffff', weight: 0.5, fillColor: getColor(f, 'kenyamanan'), fillOpacity: 0.6 }),
+            onEachFeature: (f, l) => bindStandardPopup(f, l, "Kelas Kenyamanan")
+        });
+        var layerWeightedOverlay = L.geoJSON(null, {
+            style: f => ({ color: '#ffffff', weight: 0.5, fillColor: getColor(f, 'overlay'), fillOpacity: 0.6 }),
+            onEachFeature: (f, l) => bindStandardPopup(f, l, "Weighted Overlay")
+        });
+        var layerRTH = L.geoJSON(null, {
+            style: f => ({ color: '#ffffff', weight: 0.3, fillColor: getColor(f, 'green'), fillOpacity: 0.5 }),
+            onEachFeature: (f, l) => bindStandardPopup(f, l, "Parameter RTH")
+        });
+        var layerNDVI = L.geoJSON(null, {
+            style: f => ({ color: '#ffffff', weight: 0.3, fillColor: getColor(f, 'green'), fillOpacity: 0.5 }),
+            onEachFeature: (f, l) => bindStandardPopup(f, l, "Parameter NDVI")
+        });
+        var layerLST = L.geoJSON(null, {
+            style: f => ({ color: '#ffffff', weight: 0.3, fillColor: getColor(f, 'hot'), fillOpacity: 0.5 }),
+            onEachFeature: (f, l) => bindStandardPopup(f, l, "Parameter LST")
+        });
+        var layerUdara = L.geoJSON(null, {
+            style: f => ({ color: '#ffffff', weight: 0.3, fillColor: getColor(f, 'purple'), fillOpacity: 0.5 }),
+            onEachFeature: (f, l) => bindStandardPopup(f, l, "Parameter Kualitas Udara")
+        });
+        var layerKemacetan = L.geoJSON(null, {
+            style: f => ({ color: '#ffffff', weight: 0.3, fillColor: getColor(f, 'hot'), fillOpacity: 0.5 }),
+            onEachFeature: (f, l) => bindStandardPopup(f, l, "Parameter Kemacetan")
+        });
+        var layerKepadatan = L.geoJSON(null, {
+            style: f => ({ color: '#ffffff', weight: 0.3, fillColor: getColor(f, 'purple'), fillOpacity: 0.5 }),
+            onEachFeature: (f, l) => bindStandardPopup(f, l, "Parameter Kepadatan Penduduk")
+        });
+
+        // --- PROSES LOADING DATA AMAN + AUTO SNAP ZOOM ---
+        function loadGeoJsonSafe(path, layerGroup, isFirst = false) {
+            fetch(path)
+                .then(res => {
+                    if(!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                    return res.json();
+                })
+                .then(data => {
+                    layerGroup.addData(data);
+                    console.log(`Berhasil memuat: ${path}`);
+                    
+                    if(isFirst && data.features && data.features.length > 0) {
+                        try {
+                            map.fitBounds(layerGroup.getBounds());
+                        } catch(e) { console.log("Gagal auto-zoom bounds", e); }
+                    }
+                })
+                .catch(err => {
+                    console.error(`Gagal memuat file di path: ${path}. Pastikan file ada di folder assets/ anda.`, err);
+                });
+        }
+
+        // Eksekusi Pemuatan File GeoJSON (Aktifkan auto-zoom pada file kenyamanan)
+        loadGeoJsonSafe('./assets/09_PETA_FINAL_KELAS_KENYAMANAN.geojson', layerKenyamanan, true);
+        loadGeoJsonSafe('./assets/10_PETA_WEIGHTED_OVERLAY_NILAI.geojson', layerWeightedOverlay);
+        loadGeoJsonSafe('./assets/11_PARAMETER_RTH_SKOR.geojson', layerRTH);
+        loadGeoJsonSafe('./assets/12_PARAMETER_NDVI_SKOR.geojson', layerNDVI);
+        loadGeoJsonSafe('./assets/13_PARAMETER_LST_SKOR.geojson', layerLST);
+        loadGeoJsonSafe('./assets/14_PARAMETER_KUALITAS_UDARA_SKOR.geojson', layerUdara);
+        loadGeoJsonSafe('./assets/15_PARAMETER_KEMACETAN_SKOR.geojson', layerKemacetan);
+        loadGeoJsonSafe('./assets/16_PARAMETER_KEPADATAN_SKOR.geojson', layerKepadatan);
+
+        // --- CONTROLLER MENU LAYER ---
+        var baseMaps = { "CartoDB (Dark)": darkMap, "OpenStreetMap": osm };
+        
+        var overlayMaps = {
+            "<span style='color:#ffd60a; font-weight:bold;'>Hasil Analisis Akhir:</span>": {},
+            "Peta Kelas Kenyamanan": layerKenyamanan,
+            "Peta Weighted Overlay Nilai": layerWeightedOverlay,
+            "<span style='color:#ffd60a; font-weight:bold;'>Faktor Parameter Lingkungan:</span>": {},
+            "Parameter RTH": layerRTH,
+            "Parameter NDVI": layerNDVI,
+            "Parameter LST (Suhu Permukaan)": layerLST,
+            "Parameter Kualitas Udara": layerUdara,
+            "Parameter Kemacetan": layerKemacetan,
+            "Parameter Kepadatan Penduduk": layerKepadatan
+        };
+
+        L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
+
+        // --- SISTEM LEGENDA DINAMIS ---
+        var legendControl = L.control({ position: 'bottomright' });
+        legendControl.onAdd = function (map) {
+            var div = L.DomUtil.create('div', 'info legend');
+            div.id = 'dynamic-legend-box';
+            div.style.display = 'none';
+            return div;
+        };
+        legendControl.addTo(map);
+
+        function updateLegend() {
+            var legendBox = document.getElementById('dynamic-legend-box');
+            var htmlContent = '<h4>Legenda Parameter</h4>';
+            var hasActiveOverlay = false;
+
+            if (map.hasLayer(layerKenyamanan)) {
+                hasActiveOverlay = true;
+                htmlContent += `<div class="legend-section"><b>Kenyamanan Kota:</b><br>
+                    <i style="background: #00b050"></i> Tinggi / Nyaman<br>
+                    <i style="background: #92d050"></i> Sedang<br>
+                    <i style="background: #ffc000"></i> Rendah</div>`;
+            }
+            if (map.hasLayer(layerWeightedOverlay)) {
+                hasActiveOverlay = true;
+                htmlContent += `<div class="legend-section"><b>Skor Total Overlay:</b><br>
+                    <i style="background: #ff0000"></i> Sangat Rentan / Stres<br>
+                    <i style="background: #ffc000"></i> Aman (Sedang)<br>
+                    <i style="background: #00b050"></i> Stabil / Kondusif</div>`;
+            }
+            if (map.hasLayer(layerRTH) || map.hasLayer(layerNDVI)) {
+                hasActiveOverlay = true;
+                htmlContent += `<div class="legend-section"><b>Kerapatan Vegetasi / RTH:</b><br>
+                    <i style="background: #1b4d3e"></i> Sangat Padat (Baik)<br>
+                    <i style="background: #2ecc71"></i> Sedang<br>
+                    <i style="background: #a3e4d7"></i> Jarang / Sedikit</div>`;
+            }
+            if (map.hasLayer(layerLST) || map.hasLayer(layerKemacetan)) {
+                hasActiveOverlay = true;
+                htmlContent += `<div class="legend-section"><b>Suhu / Tingkat Kemacetan:</b><br>
+                    <i style="background: #900c3f"></i> Sangat Tinggi (Padat)<br>
+                    <i style="background: #ff5733"></i> Sedang<br>
+                    <i style="background: #ffc300"></i> Rendah (Lancar)</div>`;
+            }
+            if (map.hasLayer(layerUdara) || map.hasLayer(layerKepadatan)) {
+                hasActiveOverlay = true;
+                htmlContent += `<div class="legend-section"><b>Polusi / Kepadatan Penduduk:</b><br>
+                    <i style="background: #4a148c"></i> Sangat Padat<br>
+                    <i style="background: #8e24aa"></i> Menengah<br>
+                    <i style="background: #e1bee7"></i> Rendah (Senggang)</div>`;
+            }
+
+            if (hasActiveOverlay) {
+                legendBox.innerHTML = htmlContent;
+                legendBox.style.display = 'block';
+            } else {
+                legendBox.style.display = 'none';
+            }
+        }
+
+        map.on('layeradd', updateLegend);
+        map.on('layerremove', updateLegend);
+    </script>
+</body>
+</html>

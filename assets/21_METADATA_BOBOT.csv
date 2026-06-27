@@ -1,0 +1,7 @@
+parameter,bobot,persentase,arah_skor
+RTH,0.2,20%,nilai tinggi = semakin baik
+NDVI,0.2,20%,nilai tinggi = semakin baik
+LST,0.2,20%,"nilai tinggi = semakin buruk, skor dibalik"
+Kualitas Udara,0.2,20%,"nilai tinggi = semakin buruk, skor dibalik"
+Kemacetan,0.1,10%,"nilai tinggi = semakin buruk, skor dibalik"
+Kepadatan,0.1,10%,"nilai tinggi = semakin buruk, skor dibalik"

@@ -1,0 +1,6 @@
+nilai_kelas,kelas,rentang_nilai,warna_hex,makna
+1,Sangat Tidak Nyaman,1.00 - 1.80,#d7191c,Area paling kurang nyaman.
+2,Tidak Nyaman,1.81 - 2.60,#fdae61,Area kurang nyaman.
+3,Sedang,2.61 - 3.40,#ffffbf,Area dengan kenyamanan sedang.
+4,Nyaman,3.41 - 4.20,#a6d96a,Area nyaman.
+5,Sangat Nyaman,4.21 - 5.00,#1a9641,Area paling nyaman.

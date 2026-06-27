@@ -1,0 +1,38 @@
+{
+    "nama_layer": "Peta Final Kelas Kenyamanan",
+    "field_kelas": "nilai_kelas",
+    "tipe_style": "categorized",
+    "crs": "EPSG:4326",
+    "kelas": {
+        "1": {
+            "kelas": "Sangat Tidak Nyaman",
+            "rentang": "1.00 - 1.80",
+            "warna": "#d7191c",
+            "makna": "Area paling kurang nyaman."
+        },
+        "2": {
+            "kelas": "Tidak Nyaman",
+            "rentang": "1.81 - 2.60",
+            "warna": "#fdae61",
+            "makna": "Area kurang nyaman."
+        },
+        "3": {
+            "kelas": "Sedang",
+            "rentang": "2.61 - 3.40",
+            "warna": "#ffffbf",
+            "makna": "Area dengan kenyamanan sedang."
+        },
+        "4": {
+            "kelas": "Nyaman",
+            "rentang": "3.41 - 4.20",
+            "warna": "#a6d96a",
+            "makna": "Area nyaman."
+        },
+        "5": {
+            "kelas": "Sangat Nyaman",
+            "rentang": "4.21 - 5.00",
+            "warna": "#1a9641",
+            "makna": "Area paling nyaman."
+        }
+    }
+}
